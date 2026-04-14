@@ -1,26 +1,35 @@
 import { createProgram, createShader, setupWebGL } from '../utils/gl-utils.js';
-import { clearScreen, createPlayerGeometry, setProjection } from './core/renderer.js';
+import { clearScreen, createPlayerGeometry, setProjection, createBulletGeometry } from './core/renderer.js';
 import { createPlayer, updatePlayer, listenForPlayerInput } from './objects/player.js';
+import { createBullet, updateBullet, BULLET_SIZE } from './objects/bullet.js';
 
-const sceneObjects = {};
+const sceneObjects = {
+  bullets: []
+};
 
 async function main() {
   const { canvas, gl } = setupWebGL('#game');
   const program = await initialize(gl);
 
-  // configura o jogador e a projeção ortográfica
+  // configura o jogador, o projétil e a projeção ortográfica
   setupPlayer(gl, program, canvas);
+  setupBullet(gl, program);
   setProjection(gl, program, canvas);
 
   // escuta as entradas do jogador
-  listenForPlayerInput(sceneObjects.player.data);
+  listenForPlayerInput(sceneObjects.player.data, () => {
+    generateBullet();
+  });
 
 
   // inicia o loop principal do jogo
   requestAnimationFrame(gameLoop);
   function gameLoop() {
     updatePlayer(sceneObjects.player.data, canvas);
-    
+    sceneObjects.bullets = sceneObjects.bullets.filter((bullet) => {
+      return updateBullet(bullet)
+    });
+
     render(gl, program);
     requestAnimationFrame(gameLoop);
   }
@@ -72,6 +81,21 @@ function setupPlayer(gl, program, canvas) {
   };
 }
 
+// cria o projétil e configura sua geometria
+function setupBullet(gl, program) {
+  const bulletVAO = createBulletGeometry(gl, program, BULLET_SIZE);
+
+  sceneObjects.bullet = {
+    vao: bulletVAO,
+    vertexCount: 4,
+  };
+}
+
+function generateBullet() {
+  const bullet = createBullet(sceneObjects.player.data);
+  sceneObjects.bullets.push(bullet);
+}
+
 // renderiza os objetos da cena
 function render(gl, program) {
   clearScreen(gl);
@@ -88,6 +112,19 @@ function render(gl, program) {
   gl.bindVertexArray(sceneObjects.player.vao);
   gl.drawArrays(gl.TRIANGLE_FAN, 0, sceneObjects.player.vertexCount);
   gl.bindVertexArray(null);
+
+  // desenha os projéteis
+  gl.bindVertexArray(sceneObjects.bullet.vao);
+  sceneObjects.bullets.forEach((bullet) => {
+    gl.uniform2f(
+      offsetLocation,
+      bullet.x,
+      bullet.y
+    );
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, sceneObjects.bullet.vertexCount);
+  });
+  gl.bindVertexArray(null);
+
 }
 
 main().catch((error) => {

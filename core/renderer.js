@@ -32,6 +32,35 @@ export function createPlayerGeometry(gl, program, player) {
   return vao;
 }
 
+/* CRIA A GEOMETRIA DO PROJÉTIL E CONFIGURA A PROJEÇÃO ORTOGRÁFICA */
+export function createBulletGeometry(gl, program, bulletSize) {
+  // centraliza o projétil na tela de acordo com seu tamanho
+  const vertices = new Float32Array([
+    bulletSize, bulletSize, // vértice superior direito
+    bulletSize, -bulletSize, // vértice inferior direito
+    -bulletSize, -bulletSize, // vértice inferior esquerdo
+    -bulletSize, bulletSize // vértice superior esquerdo
+  ]);
+
+  // vao, vbo para geometria do tiro
+  const vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
+
+  const vbo = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+  gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+  // configuração do atributo de posição
+  const positionAttributeLocation  = gl.getAttribLocation(program, 'position');
+  gl.enableVertexAttribArray(positionAttributeLocation );
+  gl.vertexAttribPointer(positionAttributeLocation , 2, gl.FLOAT, false, 0, 0);
+
+  gl.bindVertexArray(null);
+  gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+  return vao;
+}
+
 /* CONFIGURA A PROJEÇÃO ORTOGRÁFICA PARA O JOGO */
 export function setProjection(gl, program, canvas) {
   const projectionLocation = gl.getUniformLocation(program, 'projection');

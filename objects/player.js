@@ -10,18 +10,30 @@ export function createPlayer(canvas) {
 }
 
 // controla o movimento do jogador com as setas esquerda e direita
-export function listenForPlayerInput(player) {
+export function listenForPlayerInput(player, onPeteco) {
     window.addEventListener('keydown', (e) => {
-        if (e.key === 'ArrowLeft') {
+        if (e.code === 'ArrowLeft') {
             player.vx = -player.speed;
-        } else if (e.key === 'ArrowRight') {
+        } 
+        
+        if (e.code === 'ArrowRight') {
             player.vx = player.speed;
+        } 
+
+        if (e.code === 'Space') {
+            // TODO: implementar um delay para deixar o tiro mais bonitinho :3
+            onPeteco();
+            console.log('Peteco, peteco, peteco');
         }
     });
 
     // para evitar que o jogador continue se movendo após soltar a tecla
     window.addEventListener('keyup', (e) => {
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        if (e.code === 'ArrowLeft' && player.vx < 0) {
+            player.vx = 0;
+        }
+
+        if (e.code === 'ArrowRight' && player.vx > 0) {
             player.vx = 0;
         }
     });

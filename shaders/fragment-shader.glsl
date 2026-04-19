@@ -1,8 +1,16 @@
-#version 300 es
 precision mediump float;
 
-out vec4 outColor;
+varying vec2 v_texcoord;
+
+uniform sampler2D u_texture;
 
 void main() {
-    outColor = vec4(1.0, 0.0, 0.5, 1.0);
+    vec4 color = texture2D(u_texture, v_texcoord);
+
+    // descarta pixels totalmente transparentes (opcional, melhora visual)
+    if (color.a < 0.1) {
+        discard;
+    }
+
+    gl_FragColor = color;
 }

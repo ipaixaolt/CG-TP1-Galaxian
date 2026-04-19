@@ -9,6 +9,15 @@ export const mat4 = {
     ]);
   },
 
+  translation(tx, ty, tz) {
+    return new Float32Array([
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      tx, ty, tz, 1
+    ]);
+  },
+
   ortho(left, right, bottom, top, near, far) {
     return new Float32Array([
       2 / (right - left), 0, 0, 0,

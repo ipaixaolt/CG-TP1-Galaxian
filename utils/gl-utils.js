@@ -7,7 +7,7 @@ export const createShader = (gl, name, type, source) => {
   if (success) {
     return shader;
   }
-  
+
   // lidando com erros de compilação
   const infoLog = gl.getShaderInfoLog(shader);
   console.error(`Erro ao compilar o shader ${name}:`, infoLog);
@@ -25,7 +25,7 @@ export const createProgram = (gl, vertexShader, fragmentShader) => {
   if (success) {
     return program;
   }
-  
+
   // lidando com erros de linkedição
   const infoLog = gl.getProgramInfoLog(program);
   console.error('Erro ao linkar o programa:', infoLog);
@@ -39,21 +39,21 @@ export const createProgramFromFiles = async (gl, vertexPath, fragmentPath) => {
     fetch(fragmentPath).then(res => res.text())
   ]);
 
-  const vertexShader = createShader(gl, 'vs', gl.VERTEX_SHADER,  vsSource);
+  const vertexShader = createShader(gl, 'vs', gl.VERTEX_SHADER, vsSource);
   const fragmentShader = createShader(gl, 'fs', gl.FRAGMENT_SHADER, fsSource);
-  
+
   return createProgram(gl, vertexShader, fragmentShader);
 };
 
 export function setupWebGL(selector) {
-    // inicializa o WebGL2
-    const canvas = document.querySelector(selector);
-    const gl = canvas.getContext('webgl2');
-    
-    if (!gl) {
-      console.error('WebGL2 não está disponível');
-      throw new Error('WebGL2 não suportado');
-    }
+  // inicializa o WebGL2
+  const canvas = document.querySelector(selector);
+  const gl = canvas.getContext('webgl2');
 
-    return { canvas, gl };
+  if (!gl) {
+    console.error('WebGL2 não está disponível');
+    throw new Error('WebGL2 não suportado');
+  }
+
+  return { canvas, gl };
 }

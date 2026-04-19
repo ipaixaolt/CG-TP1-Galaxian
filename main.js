@@ -1,5 +1,15 @@
-import { createProgram, createShader, setupWebGL } from '../utils/gl-utils.js';
-import { clearScreen, createPlayerGeometry, setProjection, createBulletGeometry } from './core/renderer.js';
+import { createProgram, createShader, setupWebGL } from './utils/gl-utils.js';
+import {
+  clearScreen,
+  createPlayerGeometry,
+  setProjection,
+  createBulletGeometry,
+  loadTexture,
+  drawTexturedObject,
+  updateGeometryUVs,
+  getFrameUVByPixels
+} from './core/renderer.js';
+
 import { createPlayer, updatePlayer, listenForPlayerInput } from './objects/player.js';
 import { createBullet, updateBullet, BULLET_SIZE } from './objects/bullet.js';
 
@@ -7,37 +17,68 @@ const sceneObjects = {
   bullets: []
 };
 
+// links para as sprites
+const ASSETS = {
+  player: './assets/player.png',
+  bullet: './assets/balloon.png'
+};
+
+// detalhes da spritesheet do player para recorte
+const PLAYER_SPRITE = {
+  frameWidth: 256,
+  frameHeight: 256,
+  totalFrames: 4
+};
+
 async function main() {
   const { canvas, gl } = setupWebGL('#game');
   const program = await initialize(gl);
 
-  // configura o jogador, o projétil e a projeção ortográfica
-  setupPlayer(gl, program, canvas);
-  setupBullet(gl, program);
+  gl.clearColor(0, 0, 0, 1);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+
+  // inicializa jogador e projétil
+  await setupPlayer(gl, program, canvas);
+  await setupBullet(gl, program);
+
   setProjection(gl, program, canvas);
 
-  // escuta as entradas do jogador
-  listenForPlayerInput(sceneObjects.player.data, () => {
-    generateBullet();
-  });
+  listenForPlayerInput(sceneObjects.player.data, generateBullet); // cuida das ações do jogador
 
-
-  // inicia o loop principal do jogo
+  let lastTime = performance.now();
   requestAnimationFrame(gameLoop);
-  function gameLoop() {
-    updatePlayer(sceneObjects.player.data, canvas);
-    sceneObjects.bullets = sceneObjects.bullets.filter((bullet) => {
-      return updateBullet(bullet)
-    });
 
-    render(gl, program);
+  // loop principal
+  function gameLoop(currentTime) {
+    const deltaTime = currentTime - lastTime;
+    lastTime = currentTime;
+
+    updatePlayer(sceneObjects.player.data, canvas, deltaTime); // atualiza o jogador
+
+    sceneObjects.bullets = sceneObjects.bullets.filter((b) =>
+      updateBullet(b, deltaTime)
+    );
+
+    render(gl, program, canvas);
     requestAnimationFrame(gameLoop);
   }
 }
 
-// inicializa o WebGL, carrega os shaders
-export async function initialize(gl) {
-  const { vertexShaderSource, fragmentShaderSource } = await getShaderSources();
+// inicializa shaders e o programa
+async function initialize(gl) {
+  const vertexShaderResponse = await fetch('./shaders/vertex-shader.glsl');
+  if (!vertexShaderResponse.ok) {
+    throw new Error('Falha ao carregar o shader de vértice');
+  }
+
+  const fragmentShaderResponse = await fetch('./shaders/fragment-shader.glsl');
+  if (!fragmentShaderResponse.ok) {
+    throw new Error('Falha ao carregar o shader de fragmento');
+  }
+
+  const vertexShaderSource = await vertexShaderResponse.text();
+  const fragmentShaderSource = await fragmentShaderResponse.text();
 
   const program = createProgram(
     gl,
@@ -49,82 +90,104 @@ export async function initialize(gl) {
   return program;
 }
 
-// carrega os shaders de vértice e fragmento de forma assíncrona
-async function getShaderSources() {
-  const vertexShaderSource = await fetch('./shaders/vertex-shader.glsl');
-  if (!vertexShaderSource.ok) {
-    console.error('Erro ao carregar o shader de vértice:', vertexShaderSource.statusText);
-    throw new Error('Falha ao carregar o shader de vértice');
-  }
-
-  const fragmentShaderSource = await fetch('./shaders/fragment-shader.glsl');
-  if (!fragmentShaderSource.ok) {
-    console.error('Erro ao carregar o shader de fragmento:', fragmentShaderSource.statusText);
-    throw new Error('Falha ao carregar o shader de fragmento');
-  }
-
-  return {
-    vertexShaderSource: await vertexShaderSource.text(),
-    fragmentShaderSource: await fragmentShaderSource.text()
-  };
-}
-
-// cria o jogador e configura sua geometria
-function setupPlayer(gl, program, canvas) {
+// inicialização do jogador
+async function setupPlayer(gl, program, canvas) {
   const player = createPlayer(canvas);
-  const playerVAO = createPlayerGeometry(gl, program, player);
+
+  player.totalFrames = PLAYER_SPRITE.totalFrames;
+
+  const geometry = createPlayerGeometry(gl, program, player);
+  const textureInfo = await loadTexture(gl, ASSETS.player);
+
+  const initialUVs = getFrameUVByPixels(
+    0,
+    0,
+    PLAYER_SPRITE.frameWidth,
+    PLAYER_SPRITE.frameHeight,
+    textureInfo.width,
+    textureInfo.height
+  );
+
+  updateGeometryUVs(gl, geometry, initialUVs);
 
   sceneObjects.player = {
-    vao: playerVAO,
-    vertexCount: 4,
+    geometry,
+    texture: textureInfo.texture,
+    textureInfo,
     data: player
   };
 }
 
-// cria o projétil e configura sua geometria
-function setupBullet(gl, program) {
-  const bulletVAO = createBulletGeometry(gl, program, BULLET_SIZE);
+// inicialização do projétil
+async function setupBullet(gl, program) {
+  const geometry = createBulletGeometry(gl, program, BULLET_SIZE);
+  const textureInfo = await loadTexture(gl, ASSETS.bullet);
 
   sceneObjects.bullet = {
-    vao: bulletVAO,
-    vertexCount: 4,
+    geometry,
+    texture: textureInfo.texture
   };
 }
 
+// gera projéteis a partir da posição do jogador
 function generateBullet() {
-  const bullet = createBullet(sceneObjects.player.data);
-  sceneObjects.bullets.push(bullet);
+  sceneObjects.bullets.push(createBullet(sceneObjects.player.data));
 }
 
-// renderiza os objetos da cena
-function render(gl, program) {
-  clearScreen(gl);
+// atualiza a animação do jogador
+function updatePlayerAnimationUV(gl) {
+  const playerObject = sceneObjects.player;
+  const player = playerObject.data;
+  const frameX = player.animationFrame * PLAYER_SPRITE.frameWidth;
 
-  // atualiza a posição do jogador no shader
-  const offsetLocation = gl.getUniformLocation(program, 'offset');
-  gl.uniform2f(
-    offsetLocation,
-    sceneObjects.player.data.x,
-    sceneObjects.player.data.y
+  const uvs = getFrameUVByPixels(
+    frameX,
+    0,
+    PLAYER_SPRITE.frameWidth,
+    PLAYER_SPRITE.frameHeight,
+    playerObject.textureInfo.width,
+    playerObject.textureInfo.height
   );
 
-  // desenha o jogador
-  gl.bindVertexArray(sceneObjects.player.vao);
-  gl.drawArrays(gl.TRIANGLE_FAN, 0, sceneObjects.player.vertexCount);
-  gl.bindVertexArray(null);
+  updateGeometryUVs(gl, playerObject.geometry, uvs);
+}
 
-  // desenha os projéteis
-  gl.bindVertexArray(sceneObjects.bullet.vao);
-  sceneObjects.bullets.forEach((bullet) => {
-    gl.uniform2f(
-      offsetLocation,
-      bullet.x,
-      bullet.y
+// renderiza a cena
+function render(gl, program, canvas) {
+  clearScreen(gl);
+  setProjection(gl, program, canvas);
+
+  const player = sceneObjects.player.data;
+
+  updatePlayerAnimationUV(gl);
+
+  // desenha o jogador com textura
+  drawTexturedObject(
+    gl,
+    program,
+    sceneObjects.player.geometry,
+    sceneObjects.player.texture,
+    player.x,
+    player.y,
+    player.facing,
+    1,
+    player.angle
+  );
+
+  // desenha os projéteis com textura
+  sceneObjects.bullets.forEach((b) => {
+    drawTexturedObject(
+      gl,
+      program,
+      sceneObjects.bullet.geometry,
+      sceneObjects.bullet.texture,
+      b.x,
+      b.y,
+      1,
+      1,
+      0
     );
-    gl.drawArrays(gl.TRIANGLE_FAN, 0, sceneObjects.bullet.vertexCount);
   });
-  gl.bindVertexArray(null);
-
 }
 
 main().catch((error) => {

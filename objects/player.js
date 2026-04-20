@@ -7,6 +7,7 @@ export function createPlayer(canvas) {
 
         width: 80,
         height: 80,
+        size: 40,
         speed: 5,
 
         facing: 1,

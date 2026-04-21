@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="./favicon.ico">
+    <title>Catlaxnyan</title>
+
+    <style>
+        html,
+        body {
+            margin: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: black;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 600px;
+        }
+
+        #game {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: pink;
+        }
+
+        #overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 20;
+        }
+
+        .overlay-button {
+            border: none;
+            border-radius: 999px;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, 0.92);
+            color: #111;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 21;
+            transition: transform 0.15s ease;
+        }
+
+        .overlay-button:hover {
+            transform: scale(1.05);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .gameover {
+            background: rgba(255, 0, 0, 0.6);
+        }
+
+        .victory {
+            background: rgba(0, 150, 0, 0.6);
+        }
+
+        .music-toggle {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 30;
+        }
+
+        .music-toggle:hover {
+            background: rgba(0, 0, 0, 0.9);
+        }
+
+        .music-off {
+            display: none;
+        }
+
+        .music-toggle.muted .music-on {
+            display: none;
+        }
+
+        .music-toggle.muted .music-off {
+            display: inline;
+        }
+
+        .back-menu {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            border: none;
+            border-radius: 999px;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            cursor: pointer;
+            z-index: 30;
+            font-weight: bold;
+        }
+
+        .mutant-life {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 8px 18px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.65);
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 24px;
+            letter-spacing: 1px;
+            z-index: 25;
+            text-align: center;
+            min-width: 110px;
+            pointer-events: none;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .player-life {
+            position: absolute;
+            bottom: 10px;
+            left: 12%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(0, 0, 0, 0.55);
+            color: white;
+            z-index: 35;
+            font-family: Arial, sans-serif;
+            pointer-events: none;
+            box-shadow: 0 0 18px rgba(0, 0, 0, 0.28);
+        }
+
+        .player-life-label {
+            font-size: 15px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: white;
+        }
+
+        .player-life-hearts {
+            display: flex;
+            gap: 6px;
+        }
+
+        .player-life-heart {
+            font-size: 22px;
+            line-height: 1;
+            filter: drop-shadow(0 0 4px rgba(255, 60, 90, 0.35));
+        }
+
+        .player-life-heart.empty {
+            opacity: 0.28;
+            filter: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="game-container">
+        <canvas id="game" width="800" height="600"></canvas>
+        <div id="mutant-life" class="mutant-life hidden">11/11</div>
+        <div id="playerHud" class="player-life" aria-live="polite">
+            <span class="player-life-label">Vida</span>
+            <div id="playerLives" class="player-life-hearts"></div>
+        </div>
+        <div id="overlay" class="hidden">
+            <span id="overlay-message">GAME OVER</span>
+            <button id="overlayRestartButton" class="overlay-button hidden">REINICIAR</button>
+        </div>
+
+        <button class="back-menu" onclick="window.location.href='./menu.html'">MENU</button>
+
+        <button id="musicToggle" class="music-toggle" title="Ativar música">
+            <span class="music-on">
+                <svg class="music-icon play-icon" xmlns="http://www.w3.org/2000/svg" height="24px"
+                    viewBox="0 -960 960 960" width="24px" fill="#FFFFFF">
+                    <path
+                        d="M287-167q-47-47-47-113t47-113q47-47 113-47 23 0 42.5 5.5T480-418v-422h240v160H560v400q0 66-47 113t-113 47q-66 0-113-47Z" />
+                </svg>
+            </span>
+
+            <span class="music-off">
+                <svg class="music-icon pause-icon" xmlns="http://www.w3.org/2000/svg" height="24px"
+                    viewBox="0 -960 960 960" width="24px" fill="#FFFFFF">
+                    <path
+                        d="M792-56 56-792l56-56 736 736-56 56ZM560-514l-80-80v-246h240v160H560v166ZM400-120q-66 0-113-47t-47-113q0-66 47-113t113-47q23 0 42.5 5.5T480-418v-62l80 80v120q0 66-47 113t-113 47Z" />
+                </svg>
+            </span>
+        </button>
+    </div>
+
+    <script type="module" src="./game.js"></script>
+</body>
+
+</html>

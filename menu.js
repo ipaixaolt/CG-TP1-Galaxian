@@ -18,52 +18,11 @@ const ASSETS = {
 };
 
 const canvas = document.getElementById('menu');
-const gl = canvas.getContext('webgl');
+const gl = canvas.getContext('webgl2');
 
 if (!gl) {
     throw new Error('WebGL não foi suportado neste navegador.');
 }
-
-// shaders do menu
-const vertexShaderSource = `
-attribute vec2 a_position;
-attribute vec2 a_texcoord;
-
-uniform vec2 u_resolution;
-uniform vec2 u_translation;
-uniform vec2 u_scale;
-
-varying vec2 v_texcoord;
-
-void main() {
-  vec2 scaledPosition = a_position * u_scale;
-  vec2 position = scaledPosition + u_translation;
-
-  vec2 zeroToOne = position / u_resolution;
-  vec2 zeroToTwo = zeroToOne * 2.0;
-  vec2 clipSpace = zeroToTwo - 1.0;
-
-  gl_Position = vec4(clipSpace * vec2(1.0, -1.0), 0.0, 1.0);
-  v_texcoord = a_texcoord;
-}
-`;
-
-const fragmentShaderSource = `
-precision mediump float;
-
-varying vec2 v_texcoord;
-uniform sampler2D u_texture;
-
-void main() {
-  vec4 color = texture2D(u_texture, v_texcoord);
-
-  if (color.a < 0.05) {
-    discard;
-  }
-
-  gl_FragColor = color;
-}
-`;
 
 // canvas auxiliar para desenhar os textos do menu
 const textCanvas = document.createElement('canvas');
@@ -87,6 +46,20 @@ let textTexture;
 async function main() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
+
+    const vertexShaderResponse = await fetch('./shaders/menu-vertex-shader.glsl');
+    if (!vertexShaderResponse.ok) {
+        throw new Error('Failed to load vertex shader');
+    }
+
+    const fragmentShaderResponse = await fetch('./shaders/fragment-shader.glsl');
+    if (!fragmentShaderResponse.ok) {
+        throw new Error('Failed to load fragment shader');
+    }
+
+    const vertexShaderSource = await vertexShaderResponse.text();
+    const fragmentShaderSource = await fragmentShaderResponse.text();
+
 
     program = createProgram(gl, vertexShaderSource, fragmentShaderSource);
 

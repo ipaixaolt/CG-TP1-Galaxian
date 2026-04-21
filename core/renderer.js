@@ -69,6 +69,11 @@ export function createBulletGeometry(gl, program, size) {
   return createTexturedQuadGeometry(gl, program, size, size);
 }
 
+// cria a geometria de textura do fundo
+export function createBackgroundGeometry(gl, program, canvas) {
+  return createTexturedQuadGeometry(gl, program, canvas.width, canvas.height);
+}
+
 // Atualiza os UVs da geometria para exibir um novo frame da spritesheet
 export function updateGeometryUVs(gl, geometry, uvs) {
   gl.bindBuffer(gl.ARRAY_BUFFER, geometry.texCoordBuffer);

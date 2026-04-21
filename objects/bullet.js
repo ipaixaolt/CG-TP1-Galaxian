@@ -9,8 +9,8 @@ export function createBullet(player) {
         vx: 0,
         vy: -BULLET_SPEED,
         active: true,
-
-        type: 'player' 
+        type: 'player',
+        angle: 0
     };
 }
 
@@ -27,7 +27,7 @@ export function updateBullet(bullet, deltaTime = 16.67) {
     return true;
 }
 
-// cria projétil do inimigo 
+// cria projétil do inimigo
 export function createEnemyBullet(enemy) {
     return {
         x: enemy.x,
@@ -35,6 +35,7 @@ export function createEnemyBullet(enemy) {
         vx: 0,
         vy: BULLET_SPEED,
         active: true,
-        type: 'enemy' 
+        type: 'enemy',
+        angle: Math.PI / 2
     };
 }

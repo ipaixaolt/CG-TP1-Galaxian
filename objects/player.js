@@ -19,6 +19,12 @@ export function createPlayer(canvas) {
         angle: 0,
         shootAngle: 0.15,
 
+        life: 3,
+        maxLife: 3,
+        invulnerable: false,
+        invulnerableTimer: 0,
+        invulnerableDuration: 1200,
+
         animationFrame: 0,
         animationTimer: 0,
         animationDuration: 120,
@@ -71,6 +77,16 @@ export function updatePlayer(player, canvas, deltaTime = 16.67) {
     if (player.animationTimer >= player.animationDuration) {
         player.animationTimer = 0;
         player.animationFrame = (player.animationFrame + 1) % player.totalFrames;
+    }
+
+    // invulnerabilidade após levar dano: pisca o personagem e ignora colisões
+    if (player.invulnerable) {
+        player.invulnerableTimer -= deltaTime;
+
+        if (player.invulnerableTimer <= 0) {
+            player.invulnerable = false;
+            player.invulnerableTimer = 0;
+        }
     }
 
     // entorta um pouco o personagem quando ele atira

@@ -256,12 +256,12 @@ function drawMainMenuText() {
             textCtx.fill();
         }
 
-        textCtx.font = isSelected ? 'bold 32px Arial' : '28px Arial';
+        textCtx.font = isSelected ? "bold 40px 'Bytesized', monospace" : "30px 'Bytesized', monospace";
         textCtx.fillStyle = isSelected ? '#ffd54a' : '#ffffff';
         textCtx.fillText(menuItems[i], 400, y);
     }
 
-    textCtx.font = '18px Arial';
+    textCtx.font = "24px 'Bytesized', monospace";
     textCtx.fillStyle = '#d7e3ff';
     textCtx.fillText('↑ ↓ para navegar • Enter para confirmar', 400, 535);
 }
@@ -283,16 +283,16 @@ function drawCreditsText() {
     textCtx.textAlign = 'center';
     textCtx.textBaseline = 'middle';
 
-    textCtx.font = 'bold 34px Arial';
+    textCtx.font = 'bold 40px "Bytesized", monospace';
     textCtx.fillStyle = '#ffffff';
     textCtx.fillText('CRÉDITOS', 400, 265);
 
-    textCtx.font = '24px Arial';
+    textCtx.font = '30px "Bytesized", monospace';
     textCtx.fillStyle = '#d7e3ff';
     textCtx.fillText('Desenvolvido por: Isa\'s', 400, 330);
     textCtx.fillText('Isabelle Moreira e Isadellis Paixão', 400, 370);
 
-    textCtx.font = '18px Arial';
+    textCtx.font = "30px 'Bytesized', monospace";
     textCtx.fillStyle = '#ffd54a';
     textCtx.fillText('ESC para voltar', 400, 470);
 }
@@ -302,18 +302,18 @@ function drawControlsText() {
     textCtx.textAlign = 'center';
     textCtx.textBaseline = 'middle';
 
-    textCtx.font = 'bold 34px Arial';
+    textCtx.font = 'bold 40px "Bytesized", monospace';
     textCtx.fillStyle = '#ffffff';
     textCtx.fillText('CONTROLES', 400, 260);
 
-    textCtx.font = '24px Arial';
+    textCtx.font = '30px "Bytesized", monospace';
     textCtx.fillStyle = '#d7e3ff';
     textCtx.fillText('← / →  mover a nave', 400, 320);
     textCtx.fillText('SPACE  atirar', 400, 360);
     textCtx.fillText('ESC  pausar o jogo', 400, 400);
     textCtx.fillText('R  reiniciar a partida', 400, 440);
 
-    textCtx.font = '18px Arial';
+    textCtx.font = "30px 'Bytesized', monospace";
     textCtx.fillStyle = '#ffd54a';
     textCtx.fillText('ESC para voltar', 400, 490);
 }

@@ -5,8 +5,8 @@ const MENU_STATES = {
 };
 
 const audios = {
-    option: new Audio('./assets/audio/option.mp3'),
-    select: new Audio('./assets/audio/select.mp3')
+    option: new Audio('../../assets/audio/option.mp3'),
+    select: new Audio('../../assets/audio/select.mp3')
 };
 
 audios.option.volume = 0.6;
@@ -14,7 +14,7 @@ audios.select.volume = 0.7;
 
 // texturas do menu
 const ASSETS = {
-    menu: './assets/images/menu.png'
+    menu: '../../assets/images/menu.png'
 };
 
 const canvas = document.getElementById('menu');
@@ -47,12 +47,12 @@ async function main() {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    const vertexShaderResponse = await fetch('./shaders/menu-vertex-shader.glsl');
+    const vertexShaderResponse = await fetch('../shaders/menu-vertex-shader.glsl');
     if (!vertexShaderResponse.ok) {
         throw new Error('Failed to load vertex shader');
     }
 
-    const fragmentShaderResponse = await fetch('./shaders/fragment-shader.glsl');
+    const fragmentShaderResponse = await fetch('../shaders/fragment-shader.glsl');
     if (!fragmentShaderResponse.ok) {
         throw new Error('Failed to load fragment shader');
     }
@@ -180,7 +180,7 @@ function activateSelectedItem() {
     const selectedItem = menuItems[selectedIndex];
 
     if (selectedItem === 'JOGAR') {
-        window.location.href = './game.html';
+        window.location.href = '../game/game.html';
     }
 
     if (selectedItem === 'CRÉDITOS') {

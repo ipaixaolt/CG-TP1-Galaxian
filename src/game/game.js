@@ -1,4 +1,4 @@
-import { createProgram, createShader, setupWebGL } from './utils/gl-utils.js';
+import { createProgram, createShader, setupWebGL } from '../utils/gl-utils.js';
 import {
   clearScreen,
   createPlayerGeometry,
@@ -21,17 +21,17 @@ import {
   checkVictory
 } from './objects/collision.js';
 
-const backgroundMusic = new Audio('./assets/audio/background-music.mp3');
+const backgroundMusic = new Audio('../../assets/audio/background-music.mp3');
 
 // efeitos sonoros
 const audios = {
-  enemyDeath: new Audio('./assets/audio/enemy-death.mp3'),
-  shoot: new Audio('./assets/audio/balloon-pop.mp3'),
-  playerHit: new Audio('./assets/audio/player-hit.mp3'),
-  playerDeath: new Audio('./assets/audio/player-death.mp3'),
-  victory: new Audio('./assets/audio/victory.mp3'),
-  mutantSpawn: new Audio('./assets/audio/mutant-spawn.mp3'),
-  mutantDeath: new Audio('./assets/audio/mutant-death.mp3')
+  enemyDeath: new Audio('../../assets/audio/enemy-death.mp3'),
+  shoot: new Audio('../../assets/audio/balloon-pop.mp3'),
+  playerHit: new Audio('../../assets/audio/player-hit.mp3'),
+  playerDeath: new Audio('../../assets/audio/player-death.mp3'),
+  victory: new Audio('../../assets/audio/victory.mp3'),
+  mutantSpawn: new Audio('../../assets/audio/mutant-spawn.mp3'),
+  mutantDeath: new Audio('../../assets/audio/mutant-death.mp3')
 };
 
 backgroundMusic.loop = true;
@@ -76,13 +76,13 @@ let mutantSpawnSoundPlayed = false;
 
 // links para as sprites
 const ASSETS = {
-  player: './assets/images/player.png',
-  bullet: './assets/images/balloon.png',
-  enemyBullet: './assets/images/enemy-bullet.png',
-  background: './assets/images/background.jpg',
-  enemyIdle: './assets/images/enemy-idle.png',
-  enemyShooting: './assets/images/enemy-shooting.png',
-  enemyDying: './assets/images/enemy-dying.png',
+  player: '../../assets/images/player.png',
+  bullet: '../../assets/images/balloon.png',
+  enemyBullet: '../../assets/images/enemy-bullet.png',
+  background: '../../assets/images/background.jpg',
+  enemyIdle: '../../assets/images/enemy-idle.png',
+  enemyShooting: '../../assets/images/enemy-shooting.png',
+  enemyDying: '../../assets/images/enemy-dying.png',
 };
 
 const BACKGROUND_SCROLL_SPEED = 30;
@@ -982,12 +982,12 @@ async function main() {
 
 // inicializa shaders e o programa
 async function initialize(gl) {
-  const vertexShaderResponse = await fetch('./shaders/vertex-shader.glsl');
+  const vertexShaderResponse = await fetch('../shaders/vertex-shader.glsl');
   if (!vertexShaderResponse.ok) {
     throw new Error('Failed to load vertex shader');
   }
 
-  const fragmentShaderResponse = await fetch('./shaders/fragment-shader.glsl');
+  const fragmentShaderResponse = await fetch('../shaders/fragment-shader.glsl');
   if (!fragmentShaderResponse.ok) {
     throw new Error('Failed to load fragment shader');
   }

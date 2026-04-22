@@ -2,6 +2,11 @@
 Catlaxnyan é um jogo 2D desenvolvido com WebGL, JavaScript e Javascript , inspirado no jogo **Galaxian**, em que o jogador controla um personagem que deve eliminar ondas de inimigos enquanto desvia de ataques.
 Na releitura temos um valente gatinho que enfrenta uma orda de aliens ferozes. Se os inimigos chegarem ao chão o nosso protagonista precisará enfrentar os inimigos que sobreviveram e uma nova entidade: um mutante com mais vidas e maior velocidade de disparo.
 
+[![TP1 - GALAXIAN](https://img.youtube.com/vi/n4OYm65eYTs/0.jpg)](https://www.youtube.com/watch?v=n4OYm65eYTs)
+
+(Vídeo: https://www.youtube.com/watch?v=n4OYm65eYTs)
+
+
 ### Menu
 <img width="883" height="652" alt="image" src="https://github.com/user-attachments/assets/7556d81b-a9c7-4ccf-9d40-9c042a3b021c" />
 
